@@ -1,2 +1,2 @@
-# blue-soup
-Procgen space game made with Love2D
+# Blue Soup
+Procedurally generated space game made with Love2D
