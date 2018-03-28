@@ -11,7 +11,12 @@ function player.update(dt)
 	local gd = math.sqrt(gx^2 + gy^2)
 	gx = math.cos(ga)
 	gy = -math.sin(ga)
-	pb:applyForce(gx/gd^2*1e9, gy/gd^2*1e9)
+	local gf = 6e9/gd^2
+	-- assuming constant density underground, linear would be more accurate
+	if gd < moonRadius then
+		gf = lerp(0, 6e9/moonRadius^2, gd/moonRadius)
+	end
+	pb:applyForce(gx*gf, gy*gf)
 	
 	local dx, dy = 0, 0
 	dx = dx + (love.keyboard.isDown('d') and 1 or 0)
@@ -27,11 +32,27 @@ function player.update(dt)
 	local xv, yv = pb:getLinearVelocity()
 	pb:applyForce(-xv*player.friction, -yv*player.friction)
 	
-	camera.x = lerp(camera.x, pb:getX(), dt*8)
-	camera.y = lerp(camera.y, pb:getY(), dt*8)
-	camera.scale = 1/(math.max(gd-1300, 1)^0.8/50+1)
-	camera.scale = camera.scale > 0.5 and camera.scale or camera.scale^2 + 0.25
-	camera.rotation = ga + math.pi/2
+	local ct = player.getCameraTarget()
+	camera.x = lerp(camera.x, ct.x, dt*8)
+	camera.y = lerp(camera.y, ct.y, dt*8)
+	camera.scale = lerp(camera.scale, ct.scale, dt*8)
+	camera.rotation = lerpAngle(camera.rotation, ct.rotation, dt*8)
+end
+
+function player.getCameraTarget()
+	local ct = {}
+	local pb = objects.player.body
+	ct.x = pb:getX()
+	ct.y = pb:getY()
+	local gx = 0 - pb:getX()
+	local gy = 0 - pb:getY()
+	local ga = math.atan2(gx, gy) - math.pi/2
+	local gd = math.sqrt(gx^2 + gy^2)
+	local cst = 1/(math.max(gd - (moonRadius + 100), 1)^0.8/50+1)
+	cst = cst > 0.5 and cst or cst^2 + 0.25
+	ct.scale = cst
+	ct.rotation = ga + math.pi/2
+	return ct
 end
 
 function player.draw()

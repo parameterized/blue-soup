@@ -3,17 +3,23 @@ require 'utils'
 require 'assets'
 require 'camera'
 require 'menu'
+require 'procgen'
 require 'physics'
 require 'player'
+require 'editor'
 
 function love.load()
-	gamestate = 'menu'
+	gameState = 'menu'
+	lastGameState = 'menu'
+	moonRadius = 5000
 	gctimer = love.timer.getTime()
 	loadgame()
 end
 
 function loadgame()
+	procgen.load()
 	physics.load()
+	editor.load()
 	local pb = objects.player.body
 	camera.x = pb:getX()
 	camera.y = pb:getY()
@@ -22,12 +28,16 @@ function loadgame()
 end
 
 function love.update(dt)
-	if gamestate == 'menu' then
+	if gameState == 'menu' then
 		menu.update(dt)
-	elseif gamestate == 'playing' then
+	elseif gameState == 'playing' then
 		physics.update(dt)
 		player.update(dt)
+	elseif gameState == 'editor' then
+		editor.update(dt)
 	end
+	
+	love.window.setTitle('Blue Soup (' .. love.timer.getFPS() .. ' FPS)')
 	
 	if love.timer.getTime() - gctimer > 10 then
 		collectgarbage()
@@ -36,29 +46,53 @@ function love.update(dt)
 end
 
 function love.mousepressed(x, y, btn, isTouch)
-	if gamestate == 'menu' then
+	if gameState == 'menu' then
 		menu.mousepressed(x, y, btn, isTouch)
-	elseif gamestate == 'playing' then
+	elseif gameState == 'playing' then
 		
+	elseif gameState == 'editor' then
+		editor.mousepressed(x, y, btn, isTouch)
+	end
+end
+
+function love.mousemoved(x, y, dx, dy)
+	if gameState == 'editor' then
+		editor.mousemoved(x, y, dx, dy)
+	end
+end
+
+function love.wheelmoved(x, y)
+	if gameState == 'editor' then
+		editor.wheelmoved(x, y)
 	end
 end
 
 function love.keypressed(k, scancode, isrepeat)
-	if gamestate == 'menu' then
+	if gameState == 'menu' then
 		menu.keypressed(k, scancode, isrepeat)
-	elseif gamestate == 'playing' then
+	elseif gameState == 'playing' then
 		if k == 'r' then
 			loadgame()
+		elseif k == 'tab' then
+			setGameState('editor')
 		elseif k == 'escape' then
-			gamestate = 'menu'
+			setGameState('menu')
 		end
+	elseif gameState == 'editor' then
+		editor.keypressed(k, scancode, isrepeat)
+	end
+end
+
+function love.textinput(t)
+	if gameState == 'editor' then
+		editor.textinput(t)
 	end
 end
 
 function love.draw()
-	if gamestate == 'menu' then
+	if gameState == 'menu' then
 		menu.draw()
-	elseif gamestate == 'playing' then
+	elseif gameState == 'playing' or gameState == 'editor' then
 		love.graphics.setBackgroundColor(20, 22, 26)
 		
 		local p = objects.player
@@ -68,10 +102,12 @@ function love.draw()
 		local bx, by, bw, bh = camera.getAABB()
 		local s = 100
 		love.graphics.setColor(224, 224, 224, 200)
-		for i=math.floor(bx/s), math.floor((bx+bw)/s) do
-			for j=math.floor(by/s), math.floor((by+bh)/s) do
-				love.graphics.circle('fill', i*s + hash(i, j)*s,
-					j*s + hash(i + 1/2, j + 1/2)*s, 2 + hash(i + 1/3, j + 1/3)*2)
+		if camera.scale > 1/10 then
+			for i=math.floor(bx/s), math.floor((bx+bw)/s) do
+				for j=math.floor(by/s), math.floor((by+bh)/s) do
+					love.graphics.circle('fill', i*s + hash(i, j)*s,
+						j*s + hash(i + 1/2, j + 1/2)*s, 2 + hash(i + 1/3, j + 1/3)*2)
+				end
 			end
 		end
 		
@@ -101,6 +137,7 @@ function love.draw()
 		
 		love.graphics.setColor(0, 255, 0)
 		love.graphics.setFont(fonts.f12)
-		--love.graphics.print(camera.scale, 0, 0)
+		--love.graphics.print(camera.scale, 4, 4)
+		--love.graphics.print(camera.rotation, 4, 20)
 	end
 end

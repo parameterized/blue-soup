@@ -1,7 +1,4 @@
 
-extern vec2 chunkPos;
-extern float tileSize;
-
 float rand(vec2 n)
 {
 	return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);
@@ -105,14 +102,4 @@ float cnoise(vec2 P)
     vec2 n_x = mix(vec2(n00, n01), vec2(n10, n11), fade_xy.x);
     float n_xy = mix(n_x.x, n_x.y, fade_xy.y);
     return 2.3 * n_xy;
-}
-
-vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) {
-    vec2 uv = chunkPos + screen_coords*tileSize - tileSize/2.0;
-	float dist = sqrt(dot(uv, uv));
-	float c1 = cnoise(uv/400.0);
-	float c2 = cnoise((uv + vec2(2000))/50.0);
-	float dist2 = dist + c1*60 + c2*c1*c1*20;
-	float d = (1200.0 - dist2)/100.0 + 0.5;
-    return vec4(vec3(d), 1.0);
 }

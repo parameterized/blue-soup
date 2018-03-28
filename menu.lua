@@ -27,7 +27,11 @@ function menu.mousepressed(x, y, btn, isTouch)
 		if x > v.box.x and x < v.box.x + v.box.w
 		and y > v.box.y and y < v.box.y + v.box.h then
 			if v.id == 'play' then
-				gamestate = 'playing'
+				if lastGameState == 'menu' then
+					gameState = 'playing'
+				else
+					gameState = lastGameState
+				end
 			elseif v.id == 'exit' then
 				love.event.quit()
 			end

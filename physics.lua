@@ -8,10 +8,12 @@ function physics.load()
 	objects = {}
 	
 	objects.player = {
-		body = love.physics.newBody(world, 0, -1250, 'dynamic'),
+		body = love.physics.newBody(world, 0, -(moonRadius + 80), 'dynamic'),
 		shape = love.physics.newCircleShape(18)
 	}
 	objects.player.fixture = love.physics.newFixture(objects.player.body, objects.player.shape)
+	
+	canvases.density = love.graphics.newCanvas(physics.chunkSize+1, physics.chunkSize+1)
 	
 	physics.lastChunkWindow = nil
 	physics.removeAllChunks()
@@ -76,72 +78,74 @@ function physics.updateChunk(k)
             q3b = q3 > 0.5 and 1 or 0
             q4b = q4 > 0.5 and 1 or 0
             local pid = q1b+q2b*2+q3b*4+q4b*8
-            local f1 = (0.5-q1)/(q2-q1)
-            local f2 = (0.5-q3)/(q2-q3)
-            local f3 = (0.5-q4)/(q3-q4)
-            local f4 = (0.5-q4)/(q1-q4)
-            --f1, f2, f3, f4 = 0.5, 0.5, 0.5, 0.5
-            if f1 > 0.9 then f1 = 0.9 end
-            if f1 < 0.1 then f1 = 0.1 end
-            if f2 > 0.9 then f2 = 0.9 end
-            if f2 < 0.1 then f2 = 0.1 end
-            if f3 > 0.9 then f3 = 0.9 end
-            if f3 < 0.1 then f3 = 0.1 end
-            if f4 > 0.9 then f4 = 0.9 end
-            if f4 < 0.1 then f4 = 0.1 end
-            local pts
-            -- should be counter-clockwise (fixes automatically?)
-            if pid == 1 then
-                pts = {i+1, j, i+1, j+f1, i+f4, j}
-            elseif pid == 2 then
-                pts = {i+1, j+1, i+f2, j+1, i+1, j+f1}
-            elseif pid == 3 then
-                pts = {i+1, j, i+1, j+1, i+f2, j+1, i+f4, j}
-            elseif pid == 4 then
-                pts = {i, j+1, i, j+f3, i+f2, j+1}
-            elseif pid == 5 then
-                if qa < 0.5 then
-                    pts = {i+1, j, i+1, j+f1, i+f2, j+1, i, j+1, i, j+f3, i+f4, j}
-                else
-                    local spts = {(i+1)*ts, j*ts, (i+1)*ts, j*ts+f1*ts, i*ts+f4*ts, j*ts}
-                    table.insert(pck.polys, {id=pid, i=i, j=j, pts=spts})
-                    spts = {i*tileSize, (j+1)*ts, i*ts, j*ts+f3*ts, i*ts+f2*ts, (j+1)*ts}
-                    table.insert(pck.polys, {id=pid, i=i, j=j, pts=spts})
-                end
-            elseif pid == 6 then
-                pts = {i+1, j+1, i, j+1, i, j+f3, i+1, j+f1}
-            elseif pid == 7 then
-                pts = {i+1, j, i+1, j+1, i, j+1, i, j+f3, i+f4, j}
-            elseif pid == 8 then
-                pts = {i, j, i+f4, j, i, j+f3}
-            elseif pid == 9 then
-                pts = {i+1, j, i+1, j+f1, i, j+f3, i, j}
-            elseif pid == 10 then
-                if qa < 0.5 then
-                    pts = {i+1, j+1, i+f2, j+1, i, j+f3, i, j, i+f4, j, i+1, j+f1}
-                else
-                    local spts = {(i+1)*ts, (j+1)*ts, i*ts+f2*ts, (j+1)*ts, (i+1)*ts, j*ts+f1*ts}
-                    table.insert(pck.polys, {id=pid, i=i, j=j, pts=spts})
-                    spts = {i*ts, j*ts, i*ts+f4*ts, j*ts, i*ts, j*ts+f3*ts}
-                    table.insert(pck.polys, {id=pid, i=i, j=j, pts=spts})
-                end
-            elseif pid == 11 then
-                pts = {i+1, j, i+1, j+1, i+f2, j+1, i, j+f3, i, j}
-            elseif pid == 12 then
-                pts = {i, j, i+f4, j, i+f2, j+1, i, j+1}
-            elseif pid == 13 then
-                pts = {i+1, j, i+1, j+f1, i+f2, j+1, i, j+1, i, j}
-            elseif pid == 14 then
-                pts = {i+1, j+1, i, j+1, i, j, i+f4, j, i+1, j+f1}
-            elseif pid == 15 then
-                pts = {i+1, j, i+1, j+1, i, j+1, i, j}
-            end
-            if pts then
-                for i, v in pairs(pts) do
-                    pts[i] = v*ts
-                end
-				table.insert(pck.polys, {id=pid, i=i, j=j, pts=pts})
-            end
+			if not (pid == 0) then
+				local f1 = (0.5-q1)/(q2-q1)
+	            local f2 = (0.5-q3)/(q2-q3)
+	            local f3 = (0.5-q4)/(q3-q4)
+	            local f4 = (0.5-q4)/(q1-q4)
+	            --f1, f2, f3, f4 = 0.5, 0.5, 0.5, 0.5
+	            if f1 > 0.9 then f1 = 0.9 end
+	            if f1 < 0.1 then f1 = 0.1 end
+	            if f2 > 0.9 then f2 = 0.9 end
+	            if f2 < 0.1 then f2 = 0.1 end
+	            if f3 > 0.9 then f3 = 0.9 end
+	            if f3 < 0.1 then f3 = 0.1 end
+	            if f4 > 0.9 then f4 = 0.9 end
+	            if f4 < 0.1 then f4 = 0.1 end
+	            local pts
+	            -- should be counter-clockwise (fixes automatically?)
+	            if pid == 1 then
+	                pts = {i+1, j, i+1, j+f1, i+f4, j}
+	            elseif pid == 2 then
+	                pts = {i+1, j+1, i+f2, j+1, i+1, j+f1}
+	            elseif pid == 3 then
+	                pts = {i+1, j, i+1, j+1, i+f2, j+1, i+f4, j}
+	            elseif pid == 4 then
+	                pts = {i, j+1, i, j+f3, i+f2, j+1}
+	            elseif pid == 5 then
+	                if qa < 0.5 then
+	                    pts = {i+1, j, i+1, j+f1, i+f2, j+1, i, j+1, i, j+f3, i+f4, j}
+	                else
+	                    local spts = {(i+1)*ts, j*ts, (i+1)*ts, j*ts+f1*ts, i*ts+f4*ts, j*ts}
+	                    table.insert(pck.polys, {id=pid, i=i, j=j, pts=spts})
+	                    spts = {i*tileSize, (j+1)*ts, i*ts, j*ts+f3*ts, i*ts+f2*ts, (j+1)*ts}
+	                    table.insert(pck.polys, {id=pid, i=i, j=j, pts=spts})
+	                end
+	            elseif pid == 6 then
+	                pts = {i+1, j+1, i, j+1, i, j+f3, i+1, j+f1}
+	            elseif pid == 7 then
+	                pts = {i+1, j, i+1, j+1, i, j+1, i, j+f3, i+f4, j}
+	            elseif pid == 8 then
+	                pts = {i, j, i+f4, j, i, j+f3}
+	            elseif pid == 9 then
+	                pts = {i+1, j, i+1, j+f1, i, j+f3, i, j}
+	            elseif pid == 10 then
+	                if qa < 0.5 then
+	                    pts = {i+1, j+1, i+f2, j+1, i, j+f3, i, j, i+f4, j, i+1, j+f1}
+	                else
+	                    local spts = {(i+1)*ts, (j+1)*ts, i*ts+f2*ts, (j+1)*ts, (i+1)*ts, j*ts+f1*ts}
+	                    table.insert(pck.polys, {id=pid, i=i, j=j, pts=spts})
+	                    spts = {i*ts, j*ts, i*ts+f4*ts, j*ts, i*ts, j*ts+f3*ts}
+	                    table.insert(pck.polys, {id=pid, i=i, j=j, pts=spts})
+	                end
+	            elseif pid == 11 then
+	                pts = {i+1, j, i+1, j+1, i+f2, j+1, i, j+f3, i, j}
+	            elseif pid == 12 then
+	                pts = {i, j, i+f4, j, i+f2, j+1, i, j+1}
+	            elseif pid == 13 then
+	                pts = {i+1, j, i+1, j+f1, i+f2, j+1, i, j+1, i, j}
+	            elseif pid == 14 then
+	                pts = {i+1, j+1, i, j+1, i, j, i+f4, j, i+1, j+f1}
+	            elseif pid == 15 then
+	                pts = {i+1, j, i+1, j+1, i, j+1, i, j}
+	            end
+	            if pts then
+	                for i, v in pairs(pts) do
+	                    pts[i] = v*ts
+	                end
+					table.insert(pck.polys, {id=pid, i=i, j=j, pts=pts})
+	            end
+			end
 		end
 	end
 	for _, v in pairs(pck.polys) do
