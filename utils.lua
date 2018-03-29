@@ -38,10 +38,22 @@ end
 function setGameState(state)
 	lastGameState = gameState
 	gameState = state
+	if lastGameState == 'playing' and gameState == 'editor' then
+		local ec = editor.camera
+		local pc = player.camera
+		ec.x, ec.y, ec.scale, ec.rotation =
+			pc.x, pc.y, pc.scale, pc.rotation
+	end
+	if gameState == 'playing' then
+		activeCamera = player.camera
+	elseif gameState == 'editor' then
+		activeCamera = editor.camera
+	end
 end
 
 function sendCamera(shader)
-	shader:send('camPos', {camera.x, camera.y})
-	shader:send('camScale', camera.scale)
-	shader:send('camRot', camera.rotation)
+	local ac = activeCamera
+	shader:send('camPos', {ac.x, ac.y})
+	shader:send('camScale', ac.scale)
+	shader:send('camRot', ac.rotation)
 end

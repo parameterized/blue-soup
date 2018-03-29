@@ -11,7 +11,7 @@ function procgen.load()
 	float moonRadius = 5000.0;
 	float d = (moonRadius - dist2)/100.0 + 0.5;
 	float c3 = cnoise((uv - vec2(10000))/600.0);
-	float d2 = sin(dist/200.0 + 400.0) + c3;
+	float d2 = sin(dist/100.0 + 65.0) + c3;
 	d = min(d, d2);
 ]]
 	
@@ -31,11 +31,23 @@ vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) 
 	.. density
 	.. [[
 	float a = d > 0.5 ? 1.0 : 0.0;
-	float g = 0.9;
-	//float c4 = cnoise((uv + vec2(20000.0))/200.0);
-	//float c5 = cnoise((uv + vec2(30000.0))/50.0);
-	if (dist2 < moonRadius && (c1*2.0 + c2)/3.0 > 0.3) {
-		g = 0.7;
+	float g;
+	float c4 = cnoise((uv + vec2(20000.0))/200.0);
+	float c5 = cnoise((uv + vec2(30000.0))/20.0);
+	if (dist2 < moonRadius) {
+		a = 1.0;
+		if ((c4 + c5*3.0)/4.0 > 0.3) {
+			g = 0.15;
+		} else {
+			g = 0.2;
+		}
+	}
+	if (d > 0.5) {
+		if (dist2 < moonRadius && (c1*2.0 + c2)/3.0 > 0.3) {
+			g = 0.7;
+		} else {
+			g = 0.9;
+		}
 	}
 	return vec4(vec3(g), a);
 }

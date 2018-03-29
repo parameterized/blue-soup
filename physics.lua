@@ -3,20 +3,11 @@ physics = {chunks={}, chunkSize=16, tileSize=16}
 
 function physics.load()
 	love.physics.setMeter(64)
-	world = love.physics.newWorld(0, 0, true)
-	
 	objects = {}
-	
-	objects.player = {
-		body = love.physics.newBody(world, 0, -(moonRadius + 80), 'dynamic'),
-		shape = love.physics.newCircleShape(18)
-	}
-	objects.player.fixture = love.physics.newFixture(objects.player.body, objects.player.shape)
-	
 	canvases.density = love.graphics.newCanvas(physics.chunkSize+1, physics.chunkSize+1)
-	
 	physics.lastChunkWindow = nil
 	physics.removeAllChunks()
+	world = love.physics.newWorld(0, 0, true)
 end
 
 function physics.update(dt)
@@ -108,7 +99,7 @@ function physics.updateChunk(k)
 	                else
 	                    local spts = {(i+1)*ts, j*ts, (i+1)*ts, j*ts+f1*ts, i*ts+f4*ts, j*ts}
 	                    table.insert(pck.polys, {id=pid, i=i, j=j, pts=spts})
-	                    spts = {i*tileSize, (j+1)*ts, i*ts, j*ts+f3*ts, i*ts+f2*ts, (j+1)*ts}
+	                    spts = {i*ts, (j+1)*ts, i*ts, j*ts+f3*ts, i*ts+f2*ts, (j+1)*ts}
 	                    table.insert(pck.polys, {id=pid, i=i, j=j, pts=spts})
 	                end
 	            elseif pid == 6 then
@@ -156,6 +147,7 @@ function physics.updateChunk(k)
                 body = love.physics.newBody(world, 0, 0)
             }
             obj.fixture = love.physics.newFixture(obj.body, obj.shape)
+			obj.fixture:setUserData{type='terrain'}
             table.insert(pck.colliders, obj)
 
             -- tris error when f ~ 0 or 1, first error lags 5s
@@ -175,7 +167,8 @@ function physics.updateChunk(k)
 end
 
 function physics.getChunkWindow()
-	local bx, by, bw, bh = camera.getAABB()
+	-- todo: use camTarget
+	local bx, by, bw, bh = player.camera:getAABB()
 	local cx = math.floor(bx/physics.tileSize/physics.chunkSize)
 	local cy = math.floor(by/physics.tileSize/physics.chunkSize)
 	local cw = math.floor(bw/physics.tileSize/physics.chunkSize)

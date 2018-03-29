@@ -1,31 +1,42 @@
 
-camera = {x=0, y=0, scale=1, rotation=0}
+local camera = {}
+camera.__index = camera
 
-function camera.set()
+local function new(opts)
+	local obj = {
+		x=0, y=0, scale=1, rotation=0
+	}
+	opts = opts or {}
+	for k, v in pairs(opts) do obj[k] = v end
+	local cam = setmetatable(obj, camera)
+	return cam
+end
+
+function camera:set()
 	local ssx, ssy = love.graphics.getDimensions()
 	love.graphics.push()
 	love.graphics.translate(ssx/2, ssy/2)
-	love.graphics.scale(camera.scale)
-	love.graphics.rotate(camera.rotation)
-	love.graphics.translate(-camera.x, -camera.y)
+	love.graphics.scale(self.scale)
+	love.graphics.rotate(self.rotation)
+	love.graphics.translate(-self.x, -self.y)
 end
 
-function camera.reset()
+function camera:reset()
 	love.graphics.pop()	
 end
 
-function camera.screen2world(x, y)
+function camera:screen2world(x, y)
 	x = x - ssx/2
 	y = y - ssy/2
-	x = x / camera.scale
-	y = y / camera.scale
-	x, y = rotate(x, y, camera.rotation)
-	x = x + camera.x
-	y = y + camera.y
+	x = x / self.scale
+	y = y / self.scale
+	x, y = rotate(x, y, self.rotation)
+	x = x + self.x
+	y = y + self.y
 	return x, y
 end
 
-function camera.getAABB()
+function camera:getAABB()
 	-- probably optimizable
 	local pts = {
 		{x=ssx, y=0},
@@ -35,7 +46,7 @@ function camera.getAABB()
 	}
 	local minx, maxx, miny, maxy
 	for _, v in pairs(pts) do
-		local x, y = camera.screen2world(v.x, v.y)
+		local x, y = self:screen2world(v.x, v.y)
 		minx = minx and math.min(x, minx) or x
 		maxx = maxx and math.max(x, maxx) or x
 		miny = miny and math.min(y, miny) or y
@@ -44,3 +55,5 @@ function camera.getAABB()
 	local x, y, w, h = minx, miny, maxx - minx, maxy - miny
 	return x, y, w, h
 end
+
+return setmetatable({new=new}, {__call = function(_, ...) return new(...) end})

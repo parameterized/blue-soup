@@ -1,12 +1,13 @@
 
 require 'utils'
 require 'assets'
-require 'camera'
+Camera = require 'camera'
 require 'menu'
 require 'procgen'
 require 'physics'
 require 'player'
 require 'editor'
+require 'debugger'
 
 function love.load()
 	gameState = 'menu'
@@ -19,12 +20,9 @@ end
 function loadgame()
 	procgen.load()
 	physics.load()
+	player.load()
 	editor.load()
-	local pb = objects.player.body
-	camera.x = pb:getX()
-	camera.y = pb:getY()
-	camera.scale = 1
-	camera.rotation = 0
+	activeCamera = player.camera
 end
 
 function love.update(dt)
@@ -68,6 +66,9 @@ function love.wheelmoved(x, y)
 end
 
 function love.keypressed(k, scancode, isrepeat)
+	if k == 'f1' then
+		debugger.active = not debugger.active
+	end
 	if gameState == 'menu' then
 		menu.keypressed(k, scancode, isrepeat)
 	elseif gameState == 'playing' then
@@ -78,6 +79,7 @@ function love.keypressed(k, scancode, isrepeat)
 		elseif k == 'escape' then
 			setGameState('menu')
 		end
+		player.keypressed(k, scancode, isrepeat)
 	elseif gameState == 'editor' then
 		editor.keypressed(k, scancode, isrepeat)
 	end
@@ -97,12 +99,12 @@ function love.draw()
 		
 		local p = objects.player
 		
-		camera.set()
+		activeCamera:set()
 		
-		local bx, by, bw, bh = camera.getAABB()
+		local bx, by, bw, bh = activeCamera:getAABB()
 		local s = 100
 		love.graphics.setColor(224, 224, 224, 200)
-		if camera.scale > 1/10 then
+		if activeCamera.scale > 1/6 then
 			for i=math.floor(bx/s), math.floor((bx+bw)/s) do
 				for j=math.floor(by/s), math.floor((by+bh)/s) do
 					love.graphics.circle('fill', i*s + hash(i, j)*s,
@@ -111,7 +113,7 @@ function love.draw()
 			end
 		end
 		
-		camera.reset()
+		activeCamera:reset()
 		
 		love.graphics.setShader(shaders.moon)
 		sendCamera(shaders.moon)
@@ -119,25 +121,12 @@ function love.draw()
 		love.graphics.rectangle('fill', 0, 0, ssx, ssy)
 		love.graphics.setShader()
 		
-		camera.set()
+		activeCamera:set()
 		
 		player.draw()
 		
-		--debug collision
-		--[[
-		love.graphics.setColor(180, 244, 200, 244)
-		for k, v in pairs(physics.chunks) do
-			for k2, v2 in pairs(v.colliders) do
-				love.graphics.polygon('fill', v2.body:getWorldPoints(v2.shape:getPoints()))
-			end
-		end
-		]]
+		activeCamera:reset()
 		
-		camera.reset()
-		
-		love.graphics.setColor(0, 255, 0)
-		love.graphics.setFont(fonts.f12)
-		--love.graphics.print(camera.scale, 4, 4)
-		--love.graphics.print(camera.rotation, 4, 20)
+		debugger.draw()
 	end
 end
