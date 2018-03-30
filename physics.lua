@@ -23,6 +23,43 @@ function physics.update(dt)
 	end
 end
 
+function physics.getChunkWindow()
+	-- todo: when multiple physics objects change to getActiveChunks and includ bb + margin of each
+	local ctc = Camera(player.getCameraTarget())
+	-- localize more for optimization - could be bb of player collider + margin for movement
+	ctc.scale = ctc.scale * 4
+	local bx, by, bw, bh = ctc:getAABB()
+	local cs, ts = physics.chunkSize, physics.tileSize
+	local cx = math.floor(bx/ts/cs)
+	local cy = math.floor(by/ts/cs)
+	local cw = math.floor((bx + bw)/ts/cs) - cx
+	local ch = math.floor((by + bh)/ts/cs) - cy
+	return cx, cy, cw, ch
+end
+
+function physics.updateChunkWindow()
+	local cx1, cy1, cw, ch = physics.getChunkWindow()
+	local cx2, cy2 = cx1 + cw, cy1 + ch
+	local newChunks = {}
+	for i=cx1, cx2 do
+		for j=cy1, cy2 do
+			newChunks[i .. ',' .. j] = true
+		end
+	end
+	for k, v in pairs(physics.chunks) do
+		if newChunks[k] then
+			newChunks[k] = nil
+		else
+			-- todo: remove after out of larger range
+			--  - (shouldnt recalculate when jumping in place)
+			physics.removeChunk(k)
+		end
+	end
+	for k, v in pairs(newChunks) do
+		physics.updateChunk(k)
+	end
+end
+
 function physics.removeChunk(k)
 	local pck = physics.chunks[k]
 	if type(pck) == 'table' then
@@ -163,36 +200,5 @@ function physics.updateChunk(k)
             end
             ]]
         end
-	end
-end
-
-function physics.getChunkWindow()
-	-- todo: use camTarget
-	local bx, by, bw, bh = player.camera:getAABB()
-	local cx = math.floor(bx/physics.tileSize/physics.chunkSize)
-	local cy = math.floor(by/physics.tileSize/physics.chunkSize)
-	local cw = math.floor(bw/physics.tileSize/physics.chunkSize)
-	local ch = math.floor(bh/physics.tileSize/physics.chunkSize)
-	return cx, cy, cw, ch
-end
-
-function physics.updateChunkWindow()
-	local cx1, cy1, cw, ch = physics.getChunkWindow()
-	local cx2, cy2 = cx1 + cw, cy1 + ch
-	local newChunks = {}
-	for i=cx1, cx2+1 do
-		for j=cy1, cy2+1 do
-			newChunks[i .. ',' .. j] = true
-		end
-	end
-	for k, v in pairs(physics.chunks) do
-		if newChunks[k] then
-			newChunks[k] = nil
-		else
-			physics.removeChunk(k)
-		end
-	end
-	for k, v in pairs(newChunks) do
-		physics.updateChunk(k)
 	end
 end

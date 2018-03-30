@@ -6,6 +6,7 @@ require 'menu'
 require 'procgen'
 require 'physics'
 require 'player'
+require 'lighting'
 require 'editor'
 require 'debugger'
 
@@ -21,6 +22,7 @@ function loadgame()
 	procgen.load()
 	physics.load()
 	player.load()
+	lighting.load()
 	editor.load()
 	activeCamera = player.camera
 end
@@ -31,6 +33,7 @@ function love.update(dt)
 	elseif gameState == 'playing' then
 		physics.update(dt)
 		player.update(dt)
+		lighting.update(dt)
 	elseif gameState == 'editor' then
 		editor.update(dt)
 	end
@@ -127,6 +130,17 @@ function love.draw()
 		
 		activeCamera:reset()
 		
+		local lightCanvas = lighting.getLightCanvas()
+		local originalBlendMode = love.graphics.getBlendMode()
+		love.graphics.setBlendMode('multiply')
+		love.graphics.draw(lightCanvas, 0, 0)
+		love.graphics.setBlendMode(originalBlendMode)
+		
 		debugger.draw()
 	end
+end
+
+function love.quit()
+	-- love sometimes crashes on exit without this
+	physics.removeAllChunks()
 end

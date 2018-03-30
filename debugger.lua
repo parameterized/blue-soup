@@ -24,11 +24,9 @@ function debugger.draw()
 		
 		local cs = physics.chunkSize
 		local ts = physics.tileSize
-		local cx1, cy1, cw, ch = physics.getChunkWindow()
-		local cx2, cy2 = cx1 + cw, cy1 + ch
-		cx, cy = cx1*cs*ts, cy1*cs*ts
-		cx2, cy2 = (cx2+1)*cs*ts + cs*ts, (cy2+1)*cs*ts + cs*ts
-		cw, ch = cx2-cx, cy2-cy
+		local cx, cy, cw, ch = physics.getChunkWindow()
+		cx, cy = cx*cs*ts, cy*cs*ts
+		cw, ch = (cw+1)*cs*ts, (ch+1)*cs*ts
 		love.graphics.setColor(120, 240, 180, 40)
 		love.graphics.rectangle('fill', cx, cy, cw, ch)
 		

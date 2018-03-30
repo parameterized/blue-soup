@@ -25,7 +25,14 @@ function camera:reset()
 	love.graphics.pop()	
 end
 
+function camera:draw(f)
+	self:set()
+	f()
+	self:reset()
+end
+
 function camera:screen2world(x, y)
+	local ssx, ssy = love.graphics.getDimensions()
 	x = x - ssx/2
 	y = y - ssy/2
 	x = x / self.scale
@@ -38,6 +45,7 @@ end
 
 function camera:getAABB()
 	-- probably optimizable
+	local ssx, ssy = love.graphics.getDimensions()
 	local pts = {
 		{x=ssx, y=0},
 		{x=ssx, y=ssy},

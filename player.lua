@@ -28,13 +28,8 @@ function player.load()
 	player.inAir = true	
 	player.cursor = {x=0, y=0}
 	
-	player.camera = Camera()
-	local pc = player.camera
 	local pb = objects.player.body
-	pc.x = pb:getX()
-	pc.y = pb:getY()
-	pc.scale = 1
-	pc.rotation = 0
+	player.camera = Camera{x=pb:getX(), y=pb:getY()}
 end
 
 function player.update(dt)

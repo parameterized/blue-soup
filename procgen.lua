@@ -2,8 +2,8 @@
 procgen = {}
 
 function procgen.load()
-	local density = 
-[[
+	local pg = love.filesystem.read('shaders/procgen.h')
+	local density = [[
 	float dist = distance(uv, vec2(0.0));
 	float c1 = cnoise(uv/400.0);
 	float c2 = cnoise((uv + vec2(10000))/50.0);
@@ -15,11 +15,13 @@ function procgen.load()
 	d = min(d, d2);
 ]]
 	
-	local s = '\n'
-	.. 'extern vec2 camPos;\n'
-	.. 'extern float camScale;\n'
-	.. 'extern float camRot;\n'
-	.. love.filesystem.read('shaders/procgen.h')
+	
+	local s = [[
+	extern vec2 camPos;
+	extern float camScale;
+	extern float camRot;
+]]
+	.. pg
 	.. [[
 vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) {
 	vec2 uv = screen_coords;
@@ -54,10 +56,12 @@ vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) 
 ]]
 	shaders.moon = love.graphics.newShader(s)
 	
-	s = '\n'
-	.. 'extern vec2 chunkPos;\n'
-	.. 'extern float tileSize;\n'
-	.. love.filesystem.read('shaders/procgen.h')
+	
+	s = [[
+	extern vec2 chunkPos;
+	extern float tileSize;
+]]
+	.. pg
 	.. [[
 vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) {
     vec2 uv = chunkPos + screen_coords*tileSize - tileSize*0.5;
@@ -68,4 +72,29 @@ vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) 
 }
 ]]
 	shaders.moonDensity = love.graphics.newShader(s)
+	
+	
+	local s = [[
+	extern vec2 chunkPos;
+	extern float stepSize = 1.0;
+]]
+	.. pg
+	.. [[
+vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) {
+	vec2 uv = chunkPos + screen_coords*stepSize;
+	
+	float dist = distance(uv, vec2(0.0));
+	float c1 = cnoise(uv/400.0);
+	float c2 = cnoise((uv + vec2(10000))/50.0);
+	float dist2 = dist + c1*60 + c2*c1*c1*20;
+	float moonRadius = 5000.0;
+	
+	float g = 1.0;
+	if (dist2 < moonRadius) {
+		g = 0.0;
+	}
+	return vec4(vec3(g), 1.0);
+}
+]]
+	shaders.moonLightMask = love.graphics.newShader(s)
 end
