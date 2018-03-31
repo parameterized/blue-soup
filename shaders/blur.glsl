@@ -1,5 +1,5 @@
-extern float steps = 2.0;
-extern vec2 dir;
+uniform float steps = 2.0;
+uniform vec2 dir;
 
 vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 pixel_coords)
 {
@@ -9,12 +9,12 @@ vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 pixel_coords)
 		col = col + Texel(texture, 
 			vec2(texture_coords.x - pSize.x * i * dir.x,
 				texture_coords.y - pSize.y * i * dir.y)
-		);
+		)*(steps-float(i))/steps;
 		col = col + Texel(texture, 
 			vec2(texture_coords.x + pSize.x * i * dir.x,
 				texture_coords.y + pSize.y * i * dir.y)
-		);
+		)*(steps-float(i))/steps;
 	}
-	col = col / (steps * 2.0 + 1.0);
+	col = col / (steps + 1.0);
 	return vec4(col.r, col.g, col.b, 1.0);
 }

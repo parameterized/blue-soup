@@ -118,6 +118,8 @@ function love.draw()
 		
 		activeCamera:reset()
 		
+		love.graphics.setCanvas(canvases.preLight)
+		love.graphics.clear()
 		love.graphics.setShader(shaders.moon)
 		sendCamera(shaders.moon)
 		love.graphics.setColor(255, 255, 255)
@@ -130,11 +132,15 @@ function love.draw()
 		
 		activeCamera:reset()
 		
+		love.graphics.setCanvas()
+		love.graphics.setShader(shaders.lighting)
 		local lightCanvas = lighting.getLightCanvas()
-		local originalBlendMode = love.graphics.getBlendMode()
-		love.graphics.setBlendMode('multiply')
-		love.graphics.draw(lightCanvas, 0, 0)
-		love.graphics.setBlendMode(originalBlendMode)
+		shaders.lighting:send('lightMap', lightCanvas)
+		love.graphics.setColor(255, 255, 255)
+		love.graphics.draw(canvases.preLight, 0, 0)
+		love.graphics.setShader()
+		
+		--love.graphics.draw(lightCanvas, 0, 0)
 		
 		debugger.draw()
 	end

@@ -1,5 +1,5 @@
 
-lighting = {chunks={}, chunkSize=512, blurSize=32, downsample=16}
+lighting = {chunks={}, chunkSize=512, blurSize=8, downsample=16}
 
 function lighting.load()
 	local cs, bs = lighting.chunkSize, lighting.blurSize
@@ -76,10 +76,12 @@ function lighting.updateChunk(k)
 	local cl = lighting.canvases.chunkLight
 	love.graphics.setCanvas(cw)
 	love.graphics.clear(255, 255, 255)
+	love.graphics.setColor(255, 255, 255)
 	love.graphics.setShader(shaders.moonLightMask)
 	shaders.moonLightMask:send('chunkPos', {kx*cs - bs*ds, ky*cs - bs*ds})
 	shaders.moonLightMask:send('stepSize', ds)
 	love.graphics.rectangle('fill', 0, 0, csd + bs*2, csd + bs*2)
+	
 	love.graphics.setCanvas(cwb)
 	love.graphics.clear(255, 255, 255)
 	love.graphics.setShader(shaders.blur)
@@ -89,6 +91,7 @@ function lighting.updateChunk(k)
 	love.graphics.setCanvas(cw)
 	shaders.blur:send('dir', {0, 1})
 	love.graphics.draw(cwb, 0, 0)
+	
 	love.graphics.setCanvas(cl)
 	love.graphics.clear(255, 25, 255)
 	love.graphics.setShader()
@@ -125,9 +128,10 @@ function lighting.getLightCanvas()
 		end
 	end
 	local pb = objects.player.body
+	local a = math.atan2(player.cursor.x-pb:getX(), -(player.cursor.y-pb:getY())) - math.pi/2
 	love.graphics.setBlendMode('add')
-	love.graphics.draw(gfx.brush, pb:getX(), pb:getY(), 0, 1, 1,
-		gfx.brush:getWidth()/2, gfx.brush:getHeight()/2)
+	love.graphics.draw(gfx.flashlight, pb:getX(), pb:getY(), a, 1, 1,
+		gfx.flashlight:getWidth()/2, gfx.flashlight:getHeight()/2)
 	
 	activeCamera:reset()
 	

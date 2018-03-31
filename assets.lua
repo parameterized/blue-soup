@@ -6,7 +6,8 @@ love.filesystem.setIdentity(love.window.getTitle())
 math.randomseed(love.timer.getTime())
 
 gfx = {
-	brush = love.graphics.newImage('gfx/brush.png')
+	brush = love.graphics.newImage('gfx/brush.png'),
+	flashlight = love.graphics.newImage('gfx/flashlight.png')
 }
 
 fonts = {
@@ -16,9 +17,10 @@ fonts = {
 }
 
 canvases = {
-	
+	preLight = love.graphics.newCanvas(ssx, ssy)
 }
 
 shaders = {
-	blur = love.graphics.newShader('shaders/blur.glsl')
+	blur = love.graphics.newShader('shaders/blur.glsl'),
+	lighting = love.graphics.newShader('shaders/lighting.glsl')
 }
