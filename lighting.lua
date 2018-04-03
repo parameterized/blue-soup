@@ -75,15 +75,15 @@ function lighting.updateChunk(k)
 	local cwb = lighting.canvases.chunkWorldBuffer
 	local cl = lighting.canvases.chunkLight
 	love.graphics.setCanvas(cw)
-	love.graphics.clear(255, 255, 255)
-	love.graphics.setColor(255, 255, 255)
+	love.graphics.clear(1, 1, 1)
+	love.graphics.setColor(1, 1, 1)
 	love.graphics.setShader(shaders.moonLightMask)
 	shaders.moonLightMask:send('chunkPos', {kx*cs - bs*ds, ky*cs - bs*ds})
 	shaders.moonLightMask:send('stepSize', ds)
 	love.graphics.rectangle('fill', 0, 0, csd + bs*2, csd + bs*2)
 	
 	love.graphics.setCanvas(cwb)
-	love.graphics.clear(255, 255, 255)
+	love.graphics.clear(1, 1, 1)
 	love.graphics.setShader(shaders.blur)
 	shaders.blur:send('steps', bs)
 	shaders.blur:send('dir', {1, 0})
@@ -93,14 +93,15 @@ function lighting.updateChunk(k)
 	love.graphics.draw(cwb, 0, 0)
 	
 	love.graphics.setCanvas(cl)
-	love.graphics.clear(255, 25, 255)
+	love.graphics.clear(1, 1, 1)
 	love.graphics.setShader()
 	love.graphics.draw(cw, -bs*ds, -bs*ds, 0, ds, ds)
-	lighting.chunks[k] = love.graphics.newImage(cl:newImageData())
 	
 	love.graphics.pop()
 	love.graphics.setCanvas(originalCanvas)
 	love.graphics.setShader(originalShader)
+	
+	lighting.chunks[k] = love.graphics.newImage(cl:newImageData())
 end
 
 function lighting.getLightCanvas()
@@ -117,8 +118,8 @@ function lighting.getLightCanvas()
 	local cl = lighting.canvases.camLight
 	love.graphics.setCanvas(cl)
 	love.graphics.setShader()
-	love.graphics.clear(255, 255, 255)
-	love.graphics.setColor(255, 255, 255)
+	love.graphics.clear(1, 1, 1)
+	love.graphics.setColor(1, 1, 1)
 	for i=cx, cx+cw do
 		for j=cy, cy+ch do
 			local chunk = lighting.chunks[i .. ',' .. j]

@@ -99,7 +99,7 @@ function physics.updateChunk(k)
             local q2 = density:getPixel(i-kx*cs+1, j-ky*cs+1)
             local q3 = density:getPixel(i-kx*cs, j-ky*cs+1)
             local q4 = density:getPixel(i-kx*cs, j-ky*cs)
-			q1, q2, q3, q4 = q1/255, q2/255, q3/255, q4/255
+			q1, q2, q3, q4 = q1, q2, q3, q4
             local qa = (q1+q2+q3+q4)/4
             q1b = q1 > 0.5 and 1 or 0
             q2b = q2 > 0.5 and 1 or 0

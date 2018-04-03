@@ -70,7 +70,7 @@ function player.update(dt)
 	-- need to set velocity?
 	psd.body:setLinearVelocity((psdx - lastpsdx)/dt, (psdy - lastpsdy)/dt)
 	
-	local jumpContacts = psd.body:getContactList()
+	local jumpContacts = psd.body:getContacts()
 	player.inAir = true
 	for _, v in pairs(jumpContacts) do
 		if v:isTouching() then
@@ -139,7 +139,7 @@ end
 function player.draw()
 	local p = objects.player
 	local px, py = p.body:getX(), p.body:getY()
-	love.graphics.setColor(160, 64, 64)
+	love.graphics.setColor(160/255, 64/255, 64/255)
 	love.graphics.circle('fill', px, py, p.shape:getRadius()+1)
 	local a = math.atan2(player.cursor.x-px, player.cursor.y-py) - math.pi/2
 	love.graphics.circle('fill', px + math.cos(a)*18, py - math.sin(a)*18, 12)

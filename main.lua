@@ -98,7 +98,7 @@ function love.draw()
 	if gameState == 'menu' then
 		menu.draw()
 	elseif gameState == 'playing' or gameState == 'editor' then
-		love.graphics.setBackgroundColor(20, 22, 26)
+		love.graphics.setBackgroundColor(20/255, 22/255, 26/255)
 		
 		local p = objects.player
 		
@@ -106,7 +106,7 @@ function love.draw()
 		
 		local bx, by, bw, bh = activeCamera:getAABB()
 		local s = 100
-		love.graphics.setColor(224, 224, 224, 200)
+		love.graphics.setColor(224/255, 224/255, 224/255, 200/255)
 		if activeCamera.scale > 1/6 then
 			for i=math.floor(bx/s), math.floor((bx+bw)/s) do
 				for j=math.floor(by/s), math.floor((by+bh)/s) do
@@ -122,7 +122,7 @@ function love.draw()
 		love.graphics.clear()
 		love.graphics.setShader(shaders.moon)
 		sendCamera(shaders.moon)
-		love.graphics.setColor(255, 255, 255)
+		love.graphics.setColor(1, 1, 1)
 		love.graphics.rectangle('fill', 0, 0, ssx, ssy)
 		love.graphics.setShader()
 		
@@ -136,7 +136,7 @@ function love.draw()
 		love.graphics.setShader(shaders.lighting)
 		local lightCanvas = lighting.getLightCanvas()
 		shaders.lighting:send('lightMap', lightCanvas)
-		love.graphics.setColor(255, 255, 255)
+		love.graphics.setColor(1, 1, 1)
 		love.graphics.draw(canvases.preLight, 0, 0)
 		love.graphics.setShader()
 		

@@ -44,17 +44,17 @@ function menu.keypressed(k, scancode, isrepeat)
 end
 
 function menu.draw()
-	love.graphics.setBackgroundColor(20, 22, 26)
+	love.graphics.setBackgroundColor(20/255, 22/255, 26/255)
 	local mx, my = love.mouse.getPosition()
 	for _, v in pairs(menu.buttons) do
 		if mx > v.box.x and mx < v.box.x + v.box.w
 		and my > v.box.y and my < v.box.y + v.box.h then
-			love.graphics.setColor(40, 44, 52)
+			love.graphics.setColor(40/255, 44/255, 52/255)
 		else
-			love.graphics.setColor(60, 66, 78)
+			love.graphics.setColor(60/255, 66/255, 78/255)
 		end
 		love.graphics.rectangle('fill', v.box.x, v.box.y, v.box.w, v.box.h)
-		love.graphics.setColor(224, 224, 224)
+		love.graphics.setColor(224/255, 224/255, 224/255)
 		love.graphics.setFont(v.font)
 		love.graphics.print(v.text, v.x, v.y)
 	end
